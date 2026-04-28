@@ -1,11 +1,12 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import dotenv from 'dotenv'
 import authRoutes from './routes/auth.js'
 import vaultRoutes from './routes/vault.js'
 
-dotenv.config()
 
 const app = new Hono()
 
