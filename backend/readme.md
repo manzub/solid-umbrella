@@ -1,0 +1,19 @@
+curl -X POST http://localhost:3000/vault \
+  -H "Content-Type: application/json" \
+  -H "Authorization: eyJhbGciOiJFUzI1NiIsImtpZCI6IjMxNGRiYzVlLTNiZjgtNGVhYy1iODBlLTcxZDhiMmJjNGQ0NCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2pxdHJzcW1ta3VsdXlrZGRuZXVwLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZmQ4ZjgxYS00Mjc3LTRhNzItYmM0Zi1mM2VhZjZiOGZhNDQiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc3MjI5ODkwLCJpYXQiOjE3NzcyMjYyOTAsImVtYWlsIjoieW91QGV4YW1wbGUuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZX0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NzcyMjYyOTB9XSwic2Vzc2lvbl9pZCI6ImZiYzlhMWFhLWMyNzAtNDA4MC1hM2I0LWMyMGFlNTg4ZjE2NSIsImlzX2Fub255bW91cyI6ZmFsc2V9.lhqfS_kxcCQYhn5IFrWkjxJLQEW0L5f11hpwDRW4MYI0dXvFA3HjFZuUaoLdPMYLEqomW6jic1gT3uK9mFHz1w" \
+  -d '{
+    "name": "Gmail",
+    "category": "login",
+    "masterPassword": "yourmasterpass",
+    "data": {
+      "username": "you@gmail.com",
+      "password": "supersecret123",
+      "url": "https://gmail.com"
+    }
+  }'
+
+
+
+curl http://localhost:3000/vault \
+  -H "Authorization: eyJhbGciOiJFUzI1NiIsImtpZCI6IjMxNGRiYzVlLTNiZjgtNGVhYy1iODBlLTcxZDhiMmJjNGQ0NCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2pxdHJzcW1ta3VsdXlrZGRuZXVwLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZmQ4ZjgxYS00Mjc3LTRhNzItYmM0Zi1mM2VhZjZiOGZhNDQiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc3MjI5ODkwLCJpYXQiOjE3NzcyMjYyOTAsImVtYWlsIjoieW91QGV4YW1wbGUuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZX0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NzcyMjYyOTB9XSwic2Vzc2lvbl9pZCI6ImZiYzlhMWFhLWMyNzAtNDA4MC1hM2I0LWMyMGFlNTg4ZjE2NSIsImlzX2Fub255bW91cyI6ZmFsc2V9.lhqfS_kxcCQYhn5IFrWkjxJLQEW0L5f11hpwDRW4MYI0dXvFA3HjFZuUaoLdPMYLEqomW6jic1gT3uK9mFHz1w" \
+  -H "X-Master-Password: yourmasterpass"
