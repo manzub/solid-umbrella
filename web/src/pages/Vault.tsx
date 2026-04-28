@@ -98,12 +98,12 @@ export default function Vault() {
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0 }}>🔐 My Vault</h1>
+        <h1 style={{ margin: 0, color: 'var(--text-primary)' }}>🔐 My Vault</h1>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={openAdd} style={{ padding: '0.5rem 1rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+          <button onClick={openAdd} style={{ padding: '0.5rem 1rem', background: 'var(--accent-blue)', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
             + Add Entry
           </button>
-          <button onClick={() => { authApi.logout(); navigate('/login') }} style={{ padding: '0.5rem 1rem', background: '#e5e7eb', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+          <button onClick={() => { authApi.logout(); navigate('/login') }} style={{ padding: '0.5rem 1rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', color: 'var(--text-primary)' }}>
             Logout
           </button>
         </div>
@@ -121,14 +121,14 @@ export default function Vault() {
 
       {/* Loading indicator — subtle, doesn't blank the list */}
       {isLoading && (
-        <div style={{ textAlign: 'center', color: '#aaa', fontSize: 13, marginBottom: '0.5rem' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, marginBottom: '0.5rem' }}>
           Loading...
         </div>
       )}
 
       {/* Entry List */}
       {!isLoading && entries.length === 0 ? (
-        <div style={{ textAlign: 'center', color: 'grey', marginTop: '4rem' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '4rem' }}>
           {hasFilters ? <p>No entries match your filters.</p> : <p>Your vault is empty.</p>}
           {!hasFilters && (
             <button onClick={openAdd} style={{ padding: '0.5rem 1rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
@@ -150,23 +150,21 @@ export default function Vault() {
           </div>
 
           {/* Pagination */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              style={{ padding: '0.5rem 1rem', border: '1px solid #e5e7eb', borderRadius: 6, cursor: page === 1 ? 'default' : 'pointer', opacity: page === 1 ? 0.4 : 1, background: 'white' }}
-            >
-              ← Prev
-            </button>
-            <span style={{ color: '#888', fontSize: 13 }}>Page {page}</span>
-            <button
-              onClick={() => setPage(p => p + 1)}
-              disabled={!hasMore}
-              style={{ padding: '0.5rem 1rem', border: '1px solid #e5e7eb', borderRadius: 6, cursor: !hasMore ? 'default' : 'pointer', opacity: !hasMore ? 0.4 : 1, background: 'white' }}
-            >
-              Next →
-            </button>
-          </div>
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            style={{ padding: '0.5rem 1rem', border: '1px solid var(--border)', borderRadius: 6, cursor: page === 1 ? 'default' : 'pointer', opacity: page === 1 ? 0.4 : 1, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+          >
+            ← Prev
+          </button>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Page {page}</span>
+          <button
+            onClick={() => setPage(p => p + 1)}
+            disabled={!hasMore}
+            style={{ padding: '0.5rem 1rem', border: '1px solid var(--border)', borderRadius: 6, cursor: !hasMore ? 'default' : 'pointer', opacity: !hasMore ? 0.4 : 1, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+          >
+            Next →
+          </button>
         </>
       )}
 
