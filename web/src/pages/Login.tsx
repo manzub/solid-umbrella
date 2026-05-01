@@ -78,6 +78,9 @@ export default function Login() {
       <p style={{ marginTop: '1rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
         No account? <Link to="/register" style={{ color: 'var(--accent-blue)' }}>Register</Link>
       </p>
+      <p style={{ marginTop: '0.5rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        Forgot master password? <Link to="/recover" style={{ color: 'var(--accent-red)' }}>Recover account</Link>
+      </p>
     </div>
   )
 }

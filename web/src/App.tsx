@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Login from './pages/Login.tsx'
 import Register from './pages/Register.tsx'
 import Vault from './pages/Vault.tsx'
+import Recover from './pages/Recover.tsx'
 
 
 const queryClient = new QueryClient()
@@ -19,6 +20,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/recover" element={<Recover />} />
           <Route path="/vault" element={
             <PrivateRoute>
               <Vault />

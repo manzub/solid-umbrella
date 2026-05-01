@@ -75,7 +75,10 @@ export const authApi = {
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('userId')
     sessionStorage.removeItem('masterPassword')
-  }
+  },
+
+  recover: (email: string, recoveryCode: string, newMasterPassword: string) =>
+    api.post('/auth/recover', { email, recoveryCode, newMasterPassword })
 }
 
 export const vaultApi = {
