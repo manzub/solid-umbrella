@@ -41,7 +41,23 @@ auth.post('/login', async (c) => {
 
   return c.json({
     token: data.session.access_token,
+    refreshToken: data.session.refresh_token,
     userId: data.user.id
+  })
+})
+
+// Refresh token
+auth.post('/refresh', async (c) => {
+  const { refreshToken } = await c.req.json()
+  if (!refreshToken) return c.json({ error: 'No refresh token' }, 400)
+
+  const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken })
+  if (error || !data.session) return c.json({ error: 'Session expired' }, 401)
+
+  return c.json({
+    token: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+    userId: data.user!.id
   })
 })
 

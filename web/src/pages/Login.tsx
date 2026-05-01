@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authApi } from '../lib/api.ts'
+import { useSearchParams } from 'react-router-dom'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -9,6 +10,8 @@ export default function Login() {
   const [masterPassword, setMasterPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [searchParams] = useSearchParams()
+  const sessionExpired = searchParams.get('reason') === 'session_expired'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,6 +32,11 @@ export default function Login() {
     <div style={{ maxWidth: 400, margin: '100px auto', padding: '2rem' }}>
       <h1 style={{ color: 'var(--text-primary)' }}>🔐 Password Manager</h1>
       <h2 style={{ color: 'var(--text-primary)' }}>Login</h2>
+      {sessionExpired && (
+        <div style={{ backgroundColor: 'var(--accent-yellow-bg)', color: 'var(--accent-yellow-text)', padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', fontSize: 14 }}>
+          ⏱️ Your session expired. Please log in again.
+        </div>
+      )}
       {error && <p style={{ color: 'var(--accent-red)' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>

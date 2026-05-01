@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const api = axios.create({ baseURL: BASE_URL })
 
-// Attach token to every request automatically
+// Attach token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   const masterPassword = sessionStorage.getItem('masterPassword')
@@ -13,6 +13,50 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Handle token expiry on every response
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const status = error.response?.status
+    const originalRequest = error.config
+
+    // If 401 and we haven't already retried
+    if (status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      // Try to refresh the token
+      try {
+        const refreshToken = localStorage.getItem('refreshToken')
+        if (!refreshToken) throw new Error('No refresh token')
+
+        const res = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken })
+        const { token } = res.data
+
+        localStorage.setItem('token', token)
+        originalRequest.headers.Authorization = `Bearer ${token}`
+
+        // Retry the original request with new token
+        return api(originalRequest)
+      } catch {
+        // Refresh failed — force logout
+        forceLogout()
+        return Promise.reject(error)
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+function forceLogout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('userId')
+  sessionStorage.removeItem('masterPassword')
+  // Redirect to login with a message
+  window.location.href = '/login?reason=session_expired'
+}
+
 export const authApi = {
   register: (email: string, password: string, masterPassword: string) =>
     api.post('/auth/register', { email, password, masterPassword }),
@@ -20,13 +64,15 @@ export const authApi = {
   login: async (email: string, password: string, masterPassword: string) => {
     const res = await api.post('/auth/login', { email, password })
     localStorage.setItem('token', res.data.token)
+    localStorage.setItem('refreshToken', res.data.refreshToken)
     localStorage.setItem('userId', res.data.userId)
-    sessionStorage.setItem('masterPassword', masterPassword) // cleared when tab closes
+    sessionStorage.setItem('masterPassword', masterPassword)
     return res.data
   },
 
   logout: () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
     localStorage.removeItem('userId')
     sessionStorage.removeItem('masterPassword')
   }
@@ -53,14 +99,13 @@ export const vaultApi = {
 
   create: (name: string, category: string, data: Record<string, string>) =>
     api.post('/vault', {
-      name,
-      category,
+      name, category,
       masterPassword: sessionStorage.getItem('masterPassword'),
       data
     }).then(r => r.data),
 
   update: async (id: string, name: string, category: string, data: Record<string, string>) => {
-    const masterPassword = sessionStorage.getItem('masterPassword') // web
+    const masterPassword = sessionStorage.getItem('masterPassword')
     return api.patch(`/vault/${id}`, { name, category, masterPassword, data }).then(r => r.data)
   },
 
