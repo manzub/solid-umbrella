@@ -14,6 +14,21 @@ export function deriveKey(masterPassword: string, userId: string): Buffer {
   )
 }
 
+export function generateRecoveryCode(): string {
+  // generates a code like: XXXX-XXXX-XXXX-XXXX-XXXX
+  const segments = Array.from({ length: 5 }, () =>
+    crypto.randomBytes(2).toString('hex').toUpperCase()
+  )
+  return segments.join('-')
+}
+
+export function hashRecoveryCode(code: string): string {
+  return crypto
+    .createHash('sha256')
+    .update(code.replace(/-/g, '').toUpperCase())
+    .digest('hex')
+}
+
 export function encrypt(plaintext: string, key: Buffer): { encrypted: string; iv: string } {
   const iv = crypto.randomBytes(12)
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv)
