@@ -53,8 +53,9 @@ vault.get('/', async (c) => {
 
   let query = supabase
     .from('vault_entries')
-    .select('id, name, category, encrypted, iv, created_at', { count: 'exact' })
+    .select('id, name, category, encrypted, iv, created_at, is_favourite', { count: 'exact' })
     .eq('user_id', userId)
+    .order('is_favourite', { ascending: false })
     .order(sortKey, { ascending: sortDir === 'asc' })
     .range(offset, offset + limit - 1)
 
@@ -81,6 +82,7 @@ vault.get('/', async (c) => {
         name: entry.name,
         category: entry.category,
         created_at: entry.created_at,
+        is_favourite: entry.is_favourite,
         data: JSON.parse(plaintext)
       }
     } catch {
@@ -89,6 +91,7 @@ vault.get('/', async (c) => {
         name: entry.name,
         category: entry.category,
         created_at: entry.created_at,
+        is_favourite: entry.is_favourite,
         data: null
       }
     }
@@ -164,6 +167,31 @@ vault.patch('/:id', async (c) => {
 
   if (error) return c.json({ error: error.message }, 500)
   return c.json({ success: true })
+})
+
+// TOGGLE favourite
+vault.patch('/:id/favourite', async (c) => {
+  const userId = c.get('userId')
+  const id = c.req.param('id')
+
+  // get current value first
+  const { data, error: fetchError } = await supabase
+    .from('vault_entries')
+    .select('is_favourite')
+    .eq('id', id)
+    .eq('user_id', userId)
+    .single()
+
+  if (fetchError || !data) return c.json({ error: 'Entry not found' }, 404)
+
+  const { error } = await supabase
+    .from('vault_entries')
+    .update({ is_favourite: !data.is_favourite })
+    .eq('id', id)
+    .eq('user_id', userId)
+
+  if (error) return c.json({ error: error.message }, 500)
+  return c.json({ is_favourite: !data.is_favourite })
 })
 
 export default vault

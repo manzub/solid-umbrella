@@ -11,6 +11,7 @@ export type Entry = {
   category: string
   data: EntryData | null
   created_at: string
+  is_favourite: boolean
 }
 
 export type SortKey = 'name' | 'created_at'

@@ -40,7 +40,7 @@ export default function SearchBar({ search, onSearch, categoryFilter, onCategory
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => onCategory(cat)} style={chipStyle(categoryFilter === cat)}>
-            {cat === 'all' ? 'All Categories' : cat}
+            <span style={{textTransform:'capitalize'}}>{cat === 'all' ? 'All Categories' : cat}</span>
           </button>
         ))}
       </div>
