@@ -114,5 +114,7 @@ export const vaultApi = {
 
   toggleFavourite: (id: string) => api.patch(`/vault/${id}/favourite`).then(r => r.data),
 
+  export: () => api.get('/vault/export').then(r => r.data),
+
   delete: (id: string) => api.delete(`/vault/${id}`).then(r => r.data)
 }

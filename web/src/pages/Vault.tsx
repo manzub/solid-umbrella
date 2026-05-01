@@ -10,11 +10,13 @@ import EntryCard from '../components/EntryCard.tsx'
 import EntryDetail from '../components/EntryDetail.tsx'
 import EntryForm from '../components/EntryForm.tsx'
 import AutoLockWarning from '../components/AutoLockWarning.tsx'
+import ExportVault from '../components/ExportVault.tsx'
 
 export default function Vault() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
+  const [showExport, setShowExport] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
@@ -114,6 +116,9 @@ export default function Vault() {
           <button onClick={openAdd} style={{ padding: '0.5rem 1rem', background: 'var(--accent-blue)', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
             + Add Entry
           </button>
+          <button onClick={() => setShowExport(true)} style={{ padding: '0.5rem 1rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', color: 'var(--text-primary)', fontSize: 14 }}>
+            📦 Export
+          </button>
           <button onClick={() => { authApi.logout(); navigate('/login') }} style={{ padding: '0.5rem 1rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', color: 'var(--text-primary)' }}>
             Logout
           </button>
@@ -200,6 +205,8 @@ export default function Vault() {
           isPending={isPending}
         />
       )}
+
+      {showExport && <ExportVault onClose={() => setShowExport(false)} />}
     </div>
   )
 }

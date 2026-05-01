@@ -194,4 +194,62 @@ vault.patch('/:id/favourite', async (c) => {
   return c.json({ is_favourite: !data.is_favourite })
 })
 
+// EXPORT vault — returns all entries as encrypted JSON
+vault.get('/export', async (c) => {
+  const userId = c.get('userId')
+  const masterPassword = c.req.header('X-Master-Password')
+  if (!masterPassword) return c.json({ error: 'Master password required' }, 400)
+
+  const { data, error } = await supabase
+    .from('vault_entries')
+    .select('id, name, category, encrypted, iv, created_at, is_favourite')
+    .eq('user_id', userId)
+
+  if (error) return c.json({ error: error.message }, 500)
+
+  const key = deriveKey(masterPassword, userId)
+
+  const decrypted = data.map((entry) => {
+    try {
+      const plaintext = decrypt(entry.encrypted, entry.iv, key)
+      return {
+        id: entry.id,
+        name: entry.name,
+        category: entry.category,
+        created_at: entry.created_at,
+        is_favourite: entry.is_favourite,
+        data: JSON.parse(plaintext)
+      }
+    } catch {
+      return {
+        id: entry.id,
+        name: entry.name,
+        category: entry.category,
+        created_at: entry.created_at,
+        is_favourite: entry.is_favourite,
+        data: null
+      }
+    }
+  })
+
+  // Re-encrypt the entire export with the master password
+  // so the file is useless without it
+  const exportPayload = JSON.stringify({
+    version: 1,
+    exported_at: new Date().toISOString(),
+    entry_count: decrypted.length,
+    entries: decrypted
+  })
+
+  const { encrypted, iv } = encrypt(exportPayload, key)
+
+  return c.json({
+    version: 1,
+    exported_at: new Date().toISOString(),
+    entry_count: decrypted.length,
+    encrypted,
+    iv
+  })
+})
+
 export default vault
