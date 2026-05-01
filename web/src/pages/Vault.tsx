@@ -3,11 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { vaultApi, authApi } from '../lib/api.ts'
 import type { Entry, SortKey, FormState } from '../types/vault.ts'
+import { useAutoLock } from '../hooks/useAutoLock.ts'
 import { emptyForm } from '../types/vault.ts'
 import SearchBar from '../components/SearchBar.tsx'
 import EntryCard from '../components/EntryCard.tsx'
 import EntryDetail from '../components/EntryDetail.tsx'
 import EntryForm from '../components/EntryForm.tsx'
+import AutoLockWarning from '../components/AutoLockWarning.tsx'
 
 export default function Vault() {
   const navigate = useNavigate()
@@ -17,6 +19,8 @@ export default function Vault() {
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
+
+  const { showWarning, secondsLeft, stayLoggedIn } = useAutoLock()
 
   // filters — all server-side now
   const [search, setSearch] = useState('')
@@ -94,7 +98,14 @@ export default function Vault() {
   if (error) return <div style={{ textAlign: 'center', marginTop: '4rem', color: 'red' }}>Failed to load vault</div>
 
   return (
-    <div style={{ maxWidth: 700, margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: 700, margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', paddingTop: showWarning ? '6rem' : '2rem', transition: 'padding-top 0.3s' }}>
+
+      {showWarning && (
+        <AutoLockWarning
+          secondsLeft={secondsLeft}
+          onStayLoggedIn={stayLoggedIn}
+        />
+      )}
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
