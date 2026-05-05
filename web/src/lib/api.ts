@@ -62,7 +62,7 @@ export const authApi = {
     api.post('/auth/register', { email, password, masterPassword }),
 
   login: async (email: string, password: string, masterPassword: string) => {
-    const res = await api.post('/auth/login', { email, password })
+    const res = await api.post('/auth/login', { email, password , masterPassword})
     localStorage.setItem('token', res.data.token)
     localStorage.setItem('refreshToken', res.data.refreshToken)
     localStorage.setItem('userId', res.data.userId)
