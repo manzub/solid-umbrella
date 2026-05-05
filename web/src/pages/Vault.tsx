@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { vaultApi, authApi } from '../lib/api.ts'
@@ -31,6 +31,14 @@ export default function Vault() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [date, setDate] = useState<Date | null>(null)
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedEntry(null)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [])
 
   const queryParams = {
     page,
