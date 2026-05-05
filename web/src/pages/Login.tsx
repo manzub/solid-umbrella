@@ -22,7 +22,13 @@ export default function Login() {
       navigate('/vault')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed')
+      const message = err.response?.data?.error || 'Login failed'
+      // make wrong master password very clear
+      if (message === 'Incorrect master password') {
+        setError('❌ Incorrect master password. Your account password was correct but the master password is wrong. Try again.')
+      } else {
+        setError(message)
+      }
     } finally {
       setLoading(false)
     }

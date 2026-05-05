@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { supabase } from '../lib/supabase.js'
 import { z } from 'zod'
-import { generateRecoveryCode, hashRecoveryCode } from '../crypto/vault.js'
+import { deriveKey, encrypt, decrypt, generateRecoveryCode, hashRecoveryCode } from '../crypto/vault.js'
 
 const auth = new Hono<{ Variables: { userId: string } }>()
 
@@ -29,7 +29,7 @@ auth.post('/register', async (c) => {
 
   const userId = data.user.id
 
-  // Generate recovery code and store hash
+  // Generate recovery code
   const recoveryCode = generateRecoveryCode()
   const codeHash = hashRecoveryCode(recoveryCode)
 
@@ -39,23 +39,116 @@ auth.post('/register', async (c) => {
 
   if (recoveryError) return c.json({ error: 'Failed to generate recovery code' }, 500)
 
-  // Return recovery code — shown to user once, never stored in plaintext
+  // Create canary entry — used to verify master password on login
+  const key = deriveKey(masterPassword, userId)
+  const canaryPayload = JSON.stringify({ canary: true, created_at: new Date().toISOString() })
+  const { encrypted, iv } = encrypt(canaryPayload, key)
+
+  const { error: canaryError } = await supabase
+    .from('vault_entries')
+    .insert({
+      user_id: userId,
+      name: '__canary__',
+      category: '__system__',
+      encrypted,
+      iv,
+      is_favourite: false
+    })
+
+  if (canaryError) return c.json({ error: 'Failed to create verification entry' }, 500)
+
   return c.json({ userId, recoveryCode })
 })
 
 // Login
 auth.post('/login', async (c) => {
   const body = await c.req.json()
-  const { email, password } = body
+  const { email, password, masterPassword } = body
 
+  if (!masterPassword) return c.json({ error: 'Master password is required' }, 400)
+
+  // Authenticate with Supabase
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return c.json({ error: error.message }, 401)
+
+  const userId = data.user.id
+
+  // Fetch the canary entry
+  const { data: canaryData, error: canaryError } = await supabase
+    .from('vault_entries')
+    .select('encrypted, iv')
+    .eq('user_id', userId)
+    .eq('name', '__canary__')
+    .eq('category', '__system__')
+    .single()
+
+  if (canaryError || !canaryData) {
+    // No canary found — could be an old account, let them in
+    return c.json({
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      userId
+    })
+  }
+
+  // Try to decrypt the canary
+  try {
+    const key = deriveKey(masterPassword, userId)
+    const plaintext = decrypt(canaryData.encrypted, canaryData.iv, key)
+    const parsed = JSON.parse(plaintext)
+    if (!parsed.canary) throw new Error('Invalid canary')
+  } catch {
+    // Sign them out of Supabase since master password is wrong
+    await supabase.auth.admin.signOut(data.session.access_token)
+    return c.json({ error: 'Incorrect master password' }, 401)
+  }
 
   return c.json({
     token: data.session.access_token,
     refreshToken: data.session.refresh_token,
-    userId: data.user.id
+    userId
   })
+})
+
+// One-time route to create canary for existing accounts
+auth.post('/create-canary', async (c) => {
+  const body = await c.req.json()
+  const { email, password, masterPassword } = body
+
+  // Verify credentials first
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) return c.json({ error: 'Invalid credentials' }, 401)
+
+  const userId = data.user.id
+
+  // Check if canary already exists
+  const { data: existing } = await supabase
+    .from('vault_entries')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('name', '__canary__')
+    .single()
+
+  if (existing) return c.json({ message: 'Canary already exists' })
+
+  // Create canary
+  const key = deriveKey(masterPassword, userId)
+  const canaryPayload = JSON.stringify({ canary: true, created_at: new Date().toISOString() })
+  const { encrypted, iv } = encrypt(canaryPayload, key)
+
+  const { error: canaryError } = await supabase
+    .from('vault_entries')
+    .insert({
+      user_id: userId,
+      name: '__canary__',
+      category: '__system__',
+      encrypted,
+      iv,
+      is_favourite: false
+    })
+
+  if (canaryError) return c.json({ error: 'Failed to create canary' }, 500)
+  return c.json({ success: true })
 })
 
 // Refresh token

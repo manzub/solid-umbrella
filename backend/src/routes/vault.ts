@@ -55,6 +55,7 @@ vault.get('/', async (c) => {
     .from('vault_entries')
     .select('id, name, category, encrypted, iv, created_at, is_favourite', { count: 'exact' })
     .eq('user_id', userId)
+    .neq('category', '__system__')
     .order('is_favourite', { ascending: false })
     .order(sortKey, { ascending: sortDir === 'asc' })
     .range(offset, offset + limit - 1)
@@ -204,6 +205,7 @@ vault.get('/export', async (c) => {
     .from('vault_entries')
     .select('id, name, category, encrypted, iv, created_at, is_favourite')
     .eq('user_id', userId)
+    .neq('category', '__system__')
 
   if (error) return c.json({ error: error.message }, 500)
 
