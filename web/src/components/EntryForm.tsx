@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormState, Entry } from '../types/vault.ts'
 import PasswordStrength from './PasswordStrength.tsx'
 import PasswordGenerator from './PasswordGenerator.tsx'
+import ImageUploader from './ImageUploader.tsx'
 
 type Props = {
   form: FormState
@@ -79,6 +80,15 @@ export default function EntryForm({ form, onChange, onSubmit, onClose, editingEn
             <div>
               <label style={{ color: 'var(--text-secondary)' }}>Notes</label>
               <textarea style={{ ...inputStyle, height: 80 }} value={form.notes} onChange={e => onChange({ ...form, notes: e.target.value })} />
+            </div>
+            <div>
+              <label style={{ color: 'var(--text-secondary)' }}>Images</label>
+              <div style={{ marginTop: '0.25rem' }}>
+                <ImageUploader
+                  images={form.images}
+                  onChange={imgs => onChange({ ...form, images: imgs })}
+                />
+              </div>
             </div>
             <button
               onClick={onSubmit}

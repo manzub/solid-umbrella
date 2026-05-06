@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Entry } from '../types/vault.ts'
 import { vaultApi } from '../lib/api.ts'
 import { useQueryClient } from '@tanstack/react-query'
+import ImageGallery from './ImageGallery.tsx'
 
 type Props = {
   entry: Entry
@@ -175,6 +176,12 @@ export default function EntryDetail({ entry, onClose, onEdit, onDelete }: Props)
               <div style={{ padding: '0.75rem', background: 'var(--bg-secondary)', borderRadius: 8, border: '1px solid var(--border)' }}>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '0.35rem' }}>Notes</div>
                 <div style={{ color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{entry.data.notes}</div>
+              </div>
+            )}
+
+            {entry.data?.images && entry.data.images.length > 0 && (
+              <div style={{ padding: '0.75rem', background: 'var(--bg-secondary)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                <ImageGallery paths={entry.data.images} />
               </div>
             )}
 

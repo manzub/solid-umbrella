@@ -3,6 +3,7 @@ export type EntryData = {
   password?: string
   url?: string
   notes?: string
+  images?: string[]
 }
 
 export type Entry = {
@@ -23,10 +24,11 @@ export type FormState = {
   password: string
   url: string
   notes: string
+  images: string[]
 }
 
 export const emptyForm: FormState = {
-  name: '', category: 'login', username: '', password: '', url: '', notes: ''
+  name: '', category: 'login', username: '', password: '', url: '', notes: '', images: []
 }
 
 export type GeneratorOptions = {

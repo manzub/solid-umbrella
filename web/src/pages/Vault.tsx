@@ -81,19 +81,27 @@ export default function Vault() {
   const openAdd = () => { setEditingEntry(null); setForm(emptyForm); setShowForm(true) }
   const openEdit = (entry: Entry) => {
     setEditingEntry(entry)
-    setForm({ name: entry.name, category: entry.category, username: entry.data?.username || '', password: entry.data?.password || '', url: entry.data?.url || '', notes: entry.data?.notes || '' })
+    setForm({
+      name: entry.name,
+      category: entry.category,
+      username: entry.data?.username || '',
+      password: entry.data?.password || '',
+      url: entry.data?.url || '',
+      notes: entry.data?.notes || '',
+      images: entry.data?.images || []  // ← add
+    })
     setShowForm(true)
   }
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['vault'] })
 
   const createMutation = useMutation({
-    mutationFn: () => vaultApi.create(form.name, form.category, { username: form.username, password: form.password, url: form.url, notes: form.notes }),
+    mutationFn: () => vaultApi.create(form.name, form.category, { username: form.username, password: form.password, url: form.url, notes: form.notes, images: form.images }),
     onSuccess: () => { invalidate(); setShowForm(false) }
   })
 
   const updateMutation = useMutation({
-    mutationFn: () => vaultApi.update(editingEntry!.id, form.name, form.category, { username: form.username, password: form.password, url: form.url, notes: form.notes }),
+    mutationFn: () => vaultApi.update(editingEntry!.id, form.name, form.category, { username: form.username, password: form.password, url: form.url, notes: form.notes, images: form.images }),
     onSuccess: () => { invalidate(); setShowForm(false); setSelectedEntry(null) }
   })
 

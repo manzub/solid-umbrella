@@ -100,14 +100,14 @@ export const vaultApi = {
     return api.get(`/vault?${query.toString()}`).then(r => r.data)
   },
 
-  create: (name: string, category: string, data: Record<string, string>) =>
+  create: (name: string, category: string, data: Record<string, string | string[]>) =>
     api.post('/vault', {
       name, category,
       masterPassword: sessionStorage.getItem('masterPassword'),
       data
     }).then(r => r.data),
 
-  update: async (id: string, name: string, category: string, data: Record<string, string>) => {
+  update: async (id: string, name: string, category: string, data: Record<string, string | string[]>) => {
     const masterPassword = sessionStorage.getItem('masterPassword')
     return api.patch(`/vault/${id}`, { name, category, masterPassword, data }).then(r => r.data)
   },
@@ -117,4 +117,21 @@ export const vaultApi = {
   export: () => api.get('/vault/export').then(r => r.data),
 
   delete: (id: string) => api.delete(`/vault/${id}`).then(r => r.data)
+}
+
+export const imageApi = {
+  upload: async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('image', file)
+    const res = await api.post('/images/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return res.data.path
+  },
+
+  getSignedUrl: (path: string): Promise<string> =>
+    api.get(`/images/signed-url?path=${encodeURIComponent(path)}`).then(r => r.data.url),
+
+  delete: (path: string) =>
+    api.delete(`/images/delete?path=${encodeURIComponent(path)}`).then(r => r.data)
 }

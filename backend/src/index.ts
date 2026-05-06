@@ -6,6 +6,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import authRoutes from './routes/auth.js'
 import vaultRoutes from './routes/vault.js'
+import imageRoutes from './routes/images.js'
 
 
 const app = new Hono()
@@ -17,7 +18,8 @@ app.use('*', cors({
 
 app.get('/', (c) => c.json({ status: 'ok' }))
 app.route('/auth', authRoutes)
-app.route('/vault', vaultRoutes)    
+app.route('/vault', vaultRoutes)
+app.route('/images', imageRoutes)
 
 serve({ fetch: app.fetch, port: Number(process.env.PORT) || 3000 }, (info) => {
   console.log(`Server running on http://localhost:${info.port}`)
